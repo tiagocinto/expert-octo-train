@@ -14,7 +14,7 @@ from mlib.preprocessing import PatchPreprocessor
 from mlib.preprocessing import MeanPreprocessor
 from mlib.callbacks import TrainingMonitor
 from mlib.io import HDF5DatasetGenerator
-from mlib.nn.conv import AlexNet
+from mlib.nn.conv import OctoNet
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
 import json
@@ -32,8 +32,8 @@ aug = ImageDataGenerator(rotation_range=20, zoom_range=0.15,
 means = json.loads(open(config.DATASET_MEAN).read())
 
 # initialize the image preprocessors
-sp = SimplePreprocessor(64, 64)
-pp = PatchPreprocessor(64, 64)
+sp = SimplePreprocessor(227, 227)
+pp = PatchPreprocessor(227, 227)
 mp = MeanPreprocessor(means["R"], means["G"], means["B"])
 iap = ImageToArrayPreprocessor()
 
@@ -45,8 +45,8 @@ valGen = HDF5DatasetGenerator(config.VAL_HDF5, 128,
 
 # initialize the optimizer
 print("[INFO] compiling model...")
-opt = Adam(learning_rate=1e-2)
-model = MiniVGGNet.build(width=64, height=64, depth=3,
+opt = Adam(learning_rate=1e-3)
+model = OctoNet.build(width=227, height=227, depth=3,
 	classes=3)
 model.compile(loss="categorical_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
