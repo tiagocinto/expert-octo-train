@@ -23,7 +23,7 @@ else:
     TEST_HDF5 = "./gdrive/MyDrive/mba/test.hdf5"
 
 # path to the dataset mean
-DATASET_MEAN = "./output/mean.json"
+DATASET_MEAN = "./expert-octo-train-main/output/mean.json"
 
 # paths to the output model file and the
 # directory used for storing plots,
