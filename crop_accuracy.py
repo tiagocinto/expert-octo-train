@@ -44,17 +44,15 @@ print(testGen.numImages)
 (rank1, _) = rank5_accuracy(predictions, testGen.db["labels"])
 print("[INFO] rank-1: {:.2f}%".format(rank1 * 100))
 
-
-print(predictions.shape)
-print(predictions[:1])
-
-print(predictions)
+#print(predictions.shape)
+#print(predictions[:1])
+#print(predictions)
 
 # generate a classification report for the model
-print("[INFO] evaluating...")
-#preds = model.predict(db["features"][i:])
-#print(classification_report(db["labels"][i:], preds, target_names=db["label_names"]))
-print(classification_report(testGen.db["labels"], predictions))
+# print("[INFO] evaluating...")
+# preds = model.predict(db["features"][i:])
+# print(classification_report(db["labels"][i:], preds, target_names=db["label_names"]))
+# print(classification_report(testGen.db["labels"], predictions))
 
 # compute the raw accuracy with extra precision
 #acc = accuracy_score(db["labels"][i:], preds)
@@ -64,38 +62,38 @@ testGen.close()
 
 # re-initialize the testing set generator, this time excluding the
 # `SimplePreprocessor`
-#testGen = HDF5DatasetGenerator(config.TEST_HDF5, 64,
-#	preprocessors=[mp], classes=3)
-#predictions = []
+testGen = HDF5DatasetGenerator(config.TEST_HDF5, 15,
+	preprocessors=[mp], classes=3)
+predictions = []
 
 # initialize the progress bar
-#widgets = ["Evaluating: ", progressbar.Percentage(), " ",
-#	progressbar.Bar(), " ", progressbar.ETA()]
-#pbar = progressbar.ProgressBar(maxval=testGen.numImages // 64,
-#	widgets=widgets).start()
+widgets = ["Evaluating: ", progressbar.Percentage(), " ",
+	progressbar.Bar(), " ", progressbar.ETA()]
+pbar = progressbar.ProgressBar(maxval=testGen.numImages // 15,
+	widgets=widgets).start()
 
 # loop over a single pass of the test data
-#for (i, (images, labels)) in enumerate(testGen.generator(passes=1)):
+for (i, (images, labels)) in enumerate(testGen.generator(passes=1)):
 	# loop over each of the individual images
-#	for image in images:
+	for image in images:
 		# apply the crop preprocessor to the image to generate 10
 		# separate crops, then convert them from images to arrays
-#		crops = cp.preprocess(image)
-#		crops = np.array([iap.preprocess(c) for c in crops],
-#			dtype="float32")
+		crops = cp.preprocess(image)
+		crops = np.array([iap.preprocess(c) for c in crops],
+			dtype="float32")
 
   	# make predictions on the crops and then average them
 		# together to obtain the final prediction
-#		pred = model.predict(crops)
-#		predictions.append(pred.mean(axis=0))
+		pred = model.predict(crops)
+		predictions.append(pred.mean(axis=0))
 
 	# update the progress bar
-#	pbar.update(i)
+	pbar.update(i)
 
 # compute the rank-1 accuracy
-#pbar.finish()
-#print("[INFO] predicting on test data (with crops)...")
-#(rank1, _) = rank5_accuracy(predictions, testGen.db["labels"])
-#print("[INFO] rank-1: {:.2f}%".format(rank1 * 100))
-#testGen.close()
+pbar.finish()
+print("[INFO] predicting on test data (with crops)...")
+(rank1, _) = rank5_accuracy(predictions, testGen.db["labels"])
+print("[INFO] rank-1: {:.2f}%".format(rank1 * 100))
+testGen.close()
 
