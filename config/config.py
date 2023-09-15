@@ -32,6 +32,6 @@ if LOCAL_ENV:
     MODEL_PATH = "./output/conv.model"
     OUTPUT_PATH = "./output"
 else:
-    MODEL_PATH = "./gdrive/MyDrive/mba/output_alexnet/conv.model"
+    MODEL_PATH = "./gdrive/MyDrive/mba/output/conv.model"
     OUTPUT_PATH = "./gdrive/MyDrive/mba/output"
 
