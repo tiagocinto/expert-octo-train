@@ -18,9 +18,9 @@ if LOCAL_ENV:
     VAL_HDF5 = "/media/tiago/OS/hdf5/val.hdf5"
     TEST_HDF5 = "/media/tiago/OS/hdf5/test.hdf5"
 else:
-    TRAIN_HDF5 = "./gdrive/MyDrive/mba/train.hdf5"
-    VAL_HDF5 = "./gdrive/MyDrive/mba/val.hdf5"
-    TEST_HDF5 = "./gdrive/MyDrive/mba/test.hdf5"
+    TRAIN_HDF5 = "./gdrive/MyDrive/mba/octo/train.hdf5"
+    VAL_HDF5 = "./gdrive/MyDrive/mba/octo/val.hdf5"
+    TEST_HDF5 = "./gdrive/MyDrive/mba/octo/test.hdf5"
 
 # path to the dataset mean
 DATASET_MEAN = "./expert-octo-train-main/output/mean.json"
@@ -33,5 +33,6 @@ if LOCAL_ENV:
     OUTPUT_PATH = "./output"
 else:
     MODEL_PATH = "./gdrive/MyDrive/mba/output/conv.model"
+    MODEL_PATH_CHK = "./gdrive/MyDrive/mba/output/conv.model.chk"
     OUTPUT_PATH = "./gdrive/MyDrive/mba/output"
 

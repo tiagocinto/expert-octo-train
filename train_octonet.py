@@ -22,6 +22,8 @@ import os
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
+from keras.callbacks import ModelCheckpoint
+
 
 # construct the training image generator for data augmentation
 aug = ImageDataGenerator(rotation_range=20, zoom_range=0.15,
@@ -30,6 +32,10 @@ aug = ImageDataGenerator(rotation_range=20, zoom_range=0.15,
 
 # load the RGB means for the training set
 means = json.loads(open(config.DATASET_MEAN).read())
+
+
+
+
 
 # initialize the image preprocessors
 sp = SimplePreprocessor(227, 227)
@@ -54,7 +60,16 @@ model.compile(loss="categorical_crossentropy", optimizer=opt,
 # construct the set of callbacks
 path = os.path.sep.join([config.OUTPUT_PATH, "{}.png".format(
 	os.getpid())])
-callbacks = [TrainingMonitor(path)]
+
+checkpointer=ModelCheckpoint(config.MODEL_PATH_CHK, 
+                             monitor='val_loss', 
+                             verbose=1, 
+                             save_best_only=True, 
+                             save_weights_only=False, 
+                             mode='auto', 
+                             period=1)
+
+callbacks = [TrainingMonitor(path), checkpointer]
 
 # train the network
 model.fit(
@@ -62,7 +77,7 @@ model.fit(
 	steps_per_epoch=trainGen.numImages // 128,
 	validation_data=valGen.generator(),
 	validation_steps=valGen.numImages // 128,
-	epochs=75,
+	epochs=5,
 	max_queue_size=10,
 	callbacks=callbacks, verbose=1)
 
