@@ -17,6 +17,7 @@ from mlib.io import HDF5DatasetGenerator
 from mlib.nn.conv import AlexNet
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint
 import json
 import os
 import tensorflow as tf
@@ -52,9 +53,22 @@ model.compile(loss="categorical_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 
 # construct the set of callbacks
-path = os.path.sep.join([config.OUTPUT_PATH, "{}.png".format(
+figPath = os.path.sep.join([config.OUTPUT_PATH, "{}.png".format(
 	os.getpid())])
-callbacks = [TrainingMonitor(path)]
+jsonPath = os.path.sep.join([config.OUTPUT_PATH, "{}.json".format(
+	os.getpid())])
+
+checkpointer=ModelCheckpoint(config.MODEL_PATH_CHK, 
+                             monitor='val_loss', 
+                             verbose=1, 
+                             save_best_only=True, 
+                             save_weights_only=False, 
+                             mode='auto', 
+                             period=1)
+
+callbacks = [TrainingMonitor(figPath=figPath, jsonPath=jsonPath), checkpointer]
+
+model.summary()
 
 # train the network
 model.fit(
