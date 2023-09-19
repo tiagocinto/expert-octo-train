@@ -17,13 +17,11 @@ from mlib.io import HDF5DatasetGenerator
 from mlib.nn.conv import OctoNet
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint
 import json
 import os
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
-
-from keras.callbacks import ModelCheckpoint
-
 
 # construct the training image generator for data augmentation
 aug = ImageDataGenerator(rotation_range=20, zoom_range=0.15,
@@ -33,10 +31,6 @@ aug = ImageDataGenerator(rotation_range=20, zoom_range=0.15,
 # load the RGB means for the training set
 means = json.loads(open(config.DATASET_MEAN).read())
 
-
-
-
-
 # initialize the image preprocessors
 sp = SimplePreprocessor(227, 227)
 pp = PatchPreprocessor(227, 227)
@@ -44,9 +38,9 @@ mp = MeanPreprocessor(means["R"], means["G"], means["B"])
 iap = ImageToArrayPreprocessor()
 
 # initialize the training and validation dataset generators
-trainGen = HDF5DatasetGenerator(config.TRAIN_HDF5, 128, aug=None,
+trainGen = HDF5DatasetGenerator(config.TRAIN_HDF5, 64, aug=None,
 	preprocessors=[pp, mp, iap], binarize=True, classes=3)
-valGen = HDF5DatasetGenerator(config.VAL_HDF5, 128,
+valGen = HDF5DatasetGenerator(config.VAL_HDF5, 64,
 	preprocessors=[sp, mp, iap], binarize=True, classes=3)
 
 # initialize the optimizer
@@ -58,7 +52,9 @@ model.compile(loss="categorical_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 
 # construct the set of callbacks
-path = os.path.sep.join([config.OUTPUT_PATH, "{}.png".format(
+figPath = os.path.sep.join([config.OUTPUT_PATH, "{}.png".format(
+	os.getpid())])
+jsonPath = os.path.sep.join([config.OUTPUT_PATH, "{}.json".format(
 	os.getpid())])
 
 checkpointer=ModelCheckpoint(config.MODEL_PATH_CHK, 
@@ -69,15 +65,17 @@ checkpointer=ModelCheckpoint(config.MODEL_PATH_CHK,
                              mode='auto', 
                              period=1)
 
-callbacks = [TrainingMonitor(path), checkpointer]
+callbacks = [TrainingMonitor(figPath=figPath, jsonPath=jsonPath), checkpointer]
+
+model.summary()
 
 # train the network
 model.fit(
 	trainGen.generator(),
-	steps_per_epoch=trainGen.numImages // 128,
+	steps_per_epoch=trainGen.numImages // 64,
 	validation_data=valGen.generator(),
-	validation_steps=valGen.numImages // 128,
-	epochs=5,
+	validation_steps=valGen.numImages // 64,
+	epochs=75,
 	max_queue_size=10,
 	callbacks=callbacks, verbose=1)
 

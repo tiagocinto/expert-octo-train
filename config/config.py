@@ -23,13 +23,17 @@ else:
     TEST_HDF5 = "./gdrive/MyDrive/mba/octo/test.hdf5"
 
 # path to the dataset mean
-DATASET_MEAN = "./expert-octo-train-main/output/mean.json"
+if LOCAL_ENV:  
+    DATASET_MEAN = "./output/mean_octo.json"
+else:
+    DATASET_MEAN = "./gdrive/MyDrive/mba/octo/mean_octo.json"
 
 # paths to the output model file and the
 # directory used for storing plots,
 # classification reports, etc.
 if LOCAL_ENV:   
     MODEL_PATH = "./output/conv.model"
+    MODEL_PATH_CHK = "./output/conv.model.chk"
     OUTPUT_PATH = "./output"
 else:
     MODEL_PATH = "./gdrive/MyDrive/mba/output/conv.model"
