@@ -18,6 +18,7 @@ from mlib.nn.conv import VGGNet
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
 import json
 import os
 import tensorflow as tf
@@ -39,16 +40,16 @@ iap = ImageToArrayPreprocessor()
 
 # initialize the training and validation dataset generators
 trainGen = HDF5DatasetGenerator(config.TRAIN_HDF5, 128, aug=None,
-	preprocessors=[pp, mp, iap], binarize=True, classes=3)
+	preprocessors=[pp, mp, iap], binarize=True, classes=2)
 valGen = HDF5DatasetGenerator(config.VAL_HDF5, 128,
-	preprocessors=[sp, mp, iap], binarize=True, classes=3)
+	preprocessors=[sp, mp, iap], binarize=True, classes=2)
 
 # initialize the optimizer
 print("[INFO] compiling model...")
-opt = SGD(learning_rate=0.05)
+opt = SGD(learning_rate=1e-2, momentum=0.9)
 model = VGGNet.build(width=224, height=224, depth=3,
-	classes=3)
-model.compile(loss="categorical_crossentropy", optimizer=opt,
+	classes=2)
+model.compile(loss="binary_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 
 # construct the set of callbacks
@@ -65,7 +66,9 @@ checkpointer=ModelCheckpoint(config.MODEL_PATH_CHK,
                              mode='auto', 
                              period=1)
 
-callbacks = [TrainingMonitor(figPath=figPath, jsonPath=jsonPath), checkpointer]
+earlyStopper=EarlyStopping(monitor='val_loss', start_from_epoch=20, mode='min', verbose=1, patience=5)
+
+callbacks = [TrainingMonitor(figPath=figPath, jsonPath=jsonPath), checkpointer, earlyStopper]
 
 model.summary()
 
@@ -75,7 +78,7 @@ model.fit(
 	steps_per_epoch=trainGen.numImages // 128,
 	validation_data=valGen.generator(),
 	validation_steps=valGen.numImages // 128,
-	epochs=75,
+	epochs=50,
 	max_queue_size=10,
 	callbacks=callbacks, verbose=1)
 
